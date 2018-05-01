@@ -46,3 +46,11 @@ def disable_reactor_subscriber(subscribable_class)
     end
   end
 end
+
+# Directly call registered  event for testing
+def perform_reactor_subscriber(subscribable_class, event_name, data = {})
+  worker_module_name = "Reactor::StaticSubscribers::#{subscribable_class}"
+  event_class_name = "#{event_name.to_s.camelize}Handler"
+
+  "#{worker_module_name}::#{event_class_name}".safe_constantize.new.perform(data)
+end

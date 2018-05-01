@@ -128,8 +128,8 @@ class Reactor::Event
   end
 
   def fire_block_subscribers(data, name)
-    ((Reactor::SUBSCRIBERS[name.to_s] || []) | (Reactor::SUBSCRIBERS['*'] || [])).each do |s|
-      s.perform_where_needed(data)
+    ((Reactor::SUBSCRIBERS[name.to_s] || []) | (Reactor::SUBSCRIBERS['*'] || [])).each do |subscriber|
+      subscriber.perform_where_needed(data)
     end
   end
 end
