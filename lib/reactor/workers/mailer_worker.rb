@@ -7,32 +7,41 @@ module Reactor
     class MailerWorker
       include Reactor::Workers::Configuration
 
-      def perform(data)
+      def perform(name, data)
         raise_unconfigured! unless configured?
         return :__perform_aborted__ unless should_perform?
-        event = Reactor::Event.new(data)
 
-        msg = if action.is_a?(Symbol)
-                source.send(action, event)
-              else
-                source.new.instance_exec(event, &action)
-              end
+        event              = Reactor::Event.new(data)
+        mailer             = source.new
+        mailer.action_name = "#{name}_email"
 
-        deliverable?(msg) ? deliver(msg) : msg
-      end
+        mailer.run_callbacks(:process_action) do
+          if action.is_a?(Symbol)
+            mailer.public_send(action, event)
+          else
+            mailer.instance_exec(event, &action)
+          end
+        end
 
-      def deliver(msg)
-        if msg.respond_to?(:deliver_now)
-          # Rails 4.2/5.0
-          msg.deliver_now
+        if mailer.instance_variable_get(:@_mail_was_called) && deliverable?(mailer.message)
+          deliver(mailer.message)
         else
-          # Rails 3.2/4.0/4.1 + Generic Mail::Message
-          msg.deliver
+          mailer.message
         end
       end
 
-      def deliverable?(msg)
-        msg.respond_to?(:deliver_now) || msg.respond_to?(:deliver)
+      def deliver(message)
+        if message.respond_to?(:deliver_now)
+          # Rails 4.2/5.0
+          message.deliver_now
+        else
+          # Rails 3.2/4.0/4.1 + Generic Mail::Message
+          message.deliver
+        end
+      end
+
+      def deliverable?(message)
+        message.respond_to?(:deliver_now) || message.respond_to?(:deliver)
       end
     end
   end
