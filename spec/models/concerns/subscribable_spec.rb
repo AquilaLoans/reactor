@@ -103,7 +103,7 @@ describe Reactor::Subscribable do
 
       it 'can be delayed' do
         expect(Auction).to receive(:pick_up_poop)
-        expect(pooped_handler).to receive(:perform_in).with(5.minutes, anything).and_call_original
+        expect(pooped_handler).to receive(:perform_in).with(5.minutes, 'pooped', anything).and_call_original
         Reactor::Event.perform('pooped', {})
       end
     end
@@ -125,7 +125,7 @@ describe Reactor::Subscribable do
       expect(::Auction).to be_a(Class)
       # have to ensure multiple subscribers are loaded
       expect(KittenMailer).to be_a(Class)
-      expect { Reactor::Event.publish :auction }.not_to raise_error
+      expect { Reactor::Event.publish(:auction) }.not_to raise_error
     end
 
     describe 'deprecate flag for high-frequency events in production deployments' do
@@ -167,7 +167,7 @@ describe Reactor::Subscribable do
     describe '#perform' do
       it 'performs normally when specifically enabled' do
         allow_reactor_subscriber(TestModeAuction) do
-          expect(Reactor::StaticSubscribers::TestModeAuction::TestPuppyDeliveredHandler.new.perform({})).not_to eq(:__perform_aborted__)
+          expect(Reactor::StaticSubscribers::TestModeAuction::TestPuppyDeliveredHandler.new.perform(:name, {})).not_to eq(:__perform_aborted__)
           Reactor::Event.publish(:test_puppy_delivered)
         end
       end

@@ -36,8 +36,9 @@ end
 
 describe Reactor::Workers::MailerWorker do
   let(:klass) { MyMailerWorker }
+  let(:event_name) { :email_worker }
   let(:event_data) { Hash[some_example: :event_data] }
-  subject { klass.new.perform(event_data) }
+  subject { klass.new.perform(event_name, event_data) }
 
   before do
     allow_any_instance_of(klass).to receive(:should_perform?).and_return(true)

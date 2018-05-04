@@ -95,14 +95,14 @@ describe Reactor::Event do
 
     it 'fires all subscribers' do
       expect(Reactor::StaticSubscribers::ArbitraryModel::BarfedHandler)
-        .to receive(:perform_where_needed).with(hash_including(actor_id: model.id.to_s))
+        .to receive(:perform_where_needed).with(event_name, hash_including(actor_id: model.id.to_s))
 
       Reactor::Event.perform(event_name, actor_id: model.id.to_s, actor_type: model.class.to_s)
     end
 
     it 'sets a fired_at key in event data' do
       expect(Reactor::StaticSubscribers::ArbitraryModel::BarfedHandler)
-        .to receive(:perform_where_needed).with(hash_including(fired_at: a_kind_of(Time)))
+        .to receive(:perform_where_needed).with(event_name, hash_including(fired_at: a_kind_of(Time)))
 
       Reactor::Event.perform(event_name, actor_id: model.id.to_s, actor_type: model.class.to_s)
     end

@@ -42,7 +42,7 @@ describe Reactor::Workers::EventWorker do
 
   describe '#perform' do
     let(:klass) { MyEventWorker }
-    subject { klass.new.perform(event_data) }
+    subject { klass.new.perform(event_name, event_data) }
 
     context 'for unconfigured worker' do
       let(:klass) { FailingEventWorker }
