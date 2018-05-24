@@ -124,7 +124,7 @@ class Reactor::Event
   end
 
   def initialize_polymorphic_association(method)
-    __data__["#{method}_type"].constantize.find(__data__["#{method}_id"])
+    __data__["#{method}_type"].constantize.unscoped.find(__data__["#{method}_id"])
   end
 
   def fire_block_subscribers(data, name)
